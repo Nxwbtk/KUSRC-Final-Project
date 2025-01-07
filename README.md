@@ -1,7 +1,5 @@
 # KUSRC-Final-Project
 
-# KUSRC-Final-Project
-
 ## Setup Instructions
 
 1. Initialize the virtual environment:
