@@ -14,7 +14,6 @@ class SocketAPI:
     async def echo(self, websocket):
         try:
             async for message in websocket:
-                print(f"Received message: {message}")
                 await websocket.send(message)
         except websockets.exceptions.ConnectionClosedError as e:
             print(f"Connection closed with error: {e}")

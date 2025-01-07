@@ -4,10 +4,13 @@
 
 import asyncio
 from websockets.asyncio.client import connect
+import os
+from dotenv import load_dotenv, dotenv_values
 
+load_dotenv()
 
 async def hello():
-    async with connect("ws://localhost:3000") as websocket:
+    async with connect(f'ws://{os.getenv('HOST')}:{os.getenv('PORT')}') as websocket:
         await websocket.send("Hello world!")
         message = await websocket.recv()
         print(message)
