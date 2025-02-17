@@ -3,15 +3,17 @@ services:
     image: rabbitmq:3-management-alpine
     container_name: "rabbitmq"
     ports:
+      - 1883:1883
       - 5672:5672
       - 15672:15672
+    command: "/bin/bash -c \"rabbitmq-plugins enable --offline rabbitmq_mqtt rabbitmq_web_mqtt rabbitmq_amqp1_0; rabbitmq-server\""
     volumes:
       - mqvolumn:/var/lib/rabbitmq/
       - mqvolumn:/var/log/rabbitmq
     networks:
       - rabbitmq_go_net
     environment:
-      - RABBITMQ_DEFAULT_USER=nxwbtk
+      - RABBITMQ_DEFAULT_USER=rabbitmq
       - RABBITMQ_DEFAULT_PASS=password
 
 networks:
