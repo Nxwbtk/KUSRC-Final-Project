@@ -1,4 +1,4 @@
-import cv2, numpy as np, tensorflow as tf, customtkinter as ctk, pika, socket
+import cv2, numpy as np, tensorflow as tf, customtkinter as ctk, socket
 from mediapipe.python.solutions import drawing_utils as mp_drawing, pose as mp_pose
 from PIL import Image
 
@@ -83,6 +83,8 @@ class PoseDetectionApp(ctk.CTk):
         self.protocol('WM_DELETE_WINDOW', self.on_closing)
 
     def on_textbox_edit(self, event=None):
+        if (self.is_start_dectection == True):
+            self.sent_udp(self.textbox_ip.get('0.0', 'end'), self.textbox_port.get('0.0', 'end'), default_pose)
         self.label_status.configure(text='Connection Status: Not tested yet.', fg_color='#FFFFFF', text_color='#000000')
         self.start_button.configure(text='Start Detection', fg_color='#038C25', hover_color='#02731E', state='disabled')
         self.test_button.configure(state='normal')
@@ -149,6 +151,7 @@ class PoseDetectionApp(ctk.CTk):
             self.test_button.configure(state='normal')
             self.textbox_ip.configure(state='normal')
             self.textbox_port.configure(state='normal')
+            self.sent_udp(self.textbox_ip.get('0.0', 'end'), self.textbox_port.get('0.0', 'end'), default_pose)
 
 
     def on_click_test(self):
