@@ -282,6 +282,7 @@ class PoseDetectionApp(ctk.CTk):
             # Running pose detection when active
             if self.is_start_detection:
                 results = pose.process(frame)
+                np_output = None
 
                 if results.pose_landmarks:
                     mp_drawing.draw_landmarks(
@@ -295,39 +296,28 @@ class PoseDetectionApp(ctk.CTk):
                     self.confidence = np.max(np_output)
                     self.current_pose = pose_list[np.argmax(np_output)] if self.confidence > 0.6 else default_pose
                 else:
-                    self.current_pose = default_pose
-                    self.confidence = 0.0
-                
-                self.sent_udp(self.entry_ip.get(), self.entry_port.get(), self.current_pose)
+                    current_pose = default_pose
 
-            # Get current window size for video display
-            frame_width = self.video_frame.winfo_width()
-            frame_height = self.video_frame.winfo_height()
-            
-            if frame_width > 10 and frame_height > 10:  # Avoid resize when window is initializing
-                # Calculate aspect ratio preserving dimensions
-                img_h, img_w = frame.shape[:2]
-                aspect = img_w / img_h
-                
-                if frame_width / frame_height > aspect:
-                    # Window is wider than image
-                    new_height = frame_height
-                    new_width = int(new_height * aspect)
-                else:
-                    # Window is taller than image
-                    new_width = frame_width
-                    new_height = int(new_width / aspect)
-                
-                # Resize the frame to fit while preserving aspect ratio
-                frame = cv2.resize(frame, (new_width, new_height))
-                
-                # Convert to PhotoImage
-                image = Image.fromarray(frame)
-                photo = ctk.CTkImage(light_image=image, size=(new_width, new_height))
-                self.video_display.configure(image=photo)
-                self.video_display.image = photo  # Keep a reference!
+                confidence = 0.0
+                if np_output is not None:
+                    confidence = float(np.max(np_output))
+                cv2.putText(frame, str(f'{current_pose} {confidence:.2f}'), (50, 50), 1, 2, (255, 0, 0), 3, cv2.FONT_HERSHEY_SIMPLEX)
+                self.sent_udp(self.textbox_ip.get('0.0', 'end'), self.textbox_port.get('0.0', 'end'), current_pose)
 
-        self.after(10, self.update_frame)  # Schedule the next update
+            # Get current window size
+            window_width = self.winfo_width()
+            window_height = self.winfo_height() - 226 if self.winfo_height() > 226 else self.winfo_height()
+
+            # Resize the frame to fit the window size
+            resized_frame = cv2.resize(frame, (window_width, window_height))
+
+            img = Image.fromarray(resized_frame)
+            ctk_img = ctk.CTkImage(light_image=img, size=(window_width, window_height))
+
+            self.video_label.configure(image=ctk_img)
+            self.video_label.image = ctk_img
+
+            self.after(10, self.update_frame)
 
     def change_camera(self, choice):
         try:
