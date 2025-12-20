@@ -107,6 +107,7 @@ class PoseDetectionApp(ctk.CTk):
             # Running Tensorflow
             if self.is_start_dectection:
                 results = pose.process(frame)
+                np_output = None
 
                 if (results.pose_landmarks):
                     mp_drawing.draw_landmarks(frame, results.pose_landmarks, MY_POSE_CONNECTIONS)
@@ -114,7 +115,11 @@ class PoseDetectionApp(ctk.CTk):
                     current_pose = pose_list[np.argmax(np_output)] if np.max(np_output) > 0.6 else default_pose
                 else:
                     current_pose = default_pose
-                cv2.putText(frame, str(f'{current_pose} {np.max(np_output):.2f}'), (50, 50), 1, 2, (255, 0, 0), 3, cv2.FONT_HERSHEY_SIMPLEX)
+
+                confidence = 0.0
+                if np_output is not None:
+                    confidence = float(np.max(np_output))
+                cv2.putText(frame, str(f'{current_pose} {confidence:.2f}'), (50, 50), 1, 2, (255, 0, 0), 3, cv2.FONT_HERSHEY_SIMPLEX)
                 self.sent_udp(self.textbox_ip.get('0.0', 'end'), self.textbox_port.get('0.0', 'end'), current_pose)
 
             # Get current window size
